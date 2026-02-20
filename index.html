@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RFID Presence Dashboard</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 18px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; flex: 1; min-width: 320px; }
+    h2 { margin: 0 0 10px; font-size: 18px; }
+    input, button { padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
+    .muted { color: #666; font-size: 12px; }
+    .pill { display:inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; border:1px solid #ddd; }
+    .present { background: #e9fff0; border-color:#b7f5c8; }
+    .unknown { background: #fff5e6; border-color:#ffd59a; }
+    .danger { background:#ffecec; border-color:#ffb7b7; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <h1>RFID Presence Dashboard</h1>
+  <div class="muted">RTDB paths: <code>/presence</code> and <code>/tags</code></div>
+
+  <div class="row" style="margin-top:14px;">
+    <div class="card">
+      <h2>Enroll / Update Tag</h2>
+      <div class="muted">Writes to <code>/tags/&lt;uid&gt;/name</code></div>
+      <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+        <input id="uidInput" placeholder="UID e.g. 04:AB:12:CD" style="flex:1; min-width:220px;">
+        <input id="nameInput" placeholder="Name e.g. Fire Extinguisher A1" style="flex:2; min-width:260px;">
+        <button id="saveBtn">Save</button>
+      </div>
+      <div id="saveStatus" class="muted" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Search</h2>
+      <div class="muted">Filters both tables</div>
+      <input id="searchInput" placeholder="Search UID or name..." style="width:100%; margin-top:10px;">
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:14px;">
+    <div class="card">
+      <h2>Presence</h2>
+      <div class="muted">Live from <code>/presence</code></div>
+      <table>
+        <thead>
+          <tr><th>Status</th><th>Name</th><th>UID</th><th>Last Seen</th></tr>
+        </thead>
+        <tbody id="presenceBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Tags</h2>
+      <div class="muted">Live from <code>/tags</code></div>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>UID</th><th>Action</th></tr>
+        </thead>
+        <tbody id="tagsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
