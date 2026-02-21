@@ -29,6 +29,10 @@ let presenceData = {};
 let tagsData = {};
 let searchText = "";
 
+// === Expiry settings ===
+const EXPIRE_MS = 30_000; // 30 seconds
+setInterval(() => render(), 1000); // refresh UI every 1s so statuses can flip to EXPIRED
+
 function fmtTime(ms) {
   if (!ms) return "-";
   const d = new Date(ms);
@@ -42,21 +46,25 @@ function render() {
   // Presence
   const presenceRows = Object.entries(presenceData || {}).map(([uid, obj]) => {
     const name = obj?.name || (tagsData?.[uid]?.name ?? "Unknown");
-    const present = obj?.present === true;
-    const lastSeen = obj?.lastSeen;
-    return { uid, name, present, lastSeen };
+    const lastSeen = obj?.lastSeen || 0;
+    const age = lastSeen ? (Date.now() - lastSeen) : Infinity;
+    const isExpired = lastSeen > 0 && age > EXPIRE_MS;
+
+    return { uid, name, lastSeen, age, isExpired };
   }).filter(r => !q || norm(r.uid).includes(q) || norm(r.name).includes(q))
     .sort((a,b) => (b.lastSeen||0) - (a.lastSeen||0));
 
   presenceBody.innerHTML = presenceRows.map(r => {
-    const pillClass = r.present ? "pill present" : "pill danger";
-    const pillText = r.present ? "PRESENT" : "NOT PRESENT";
+    const pillClass = r.isExpired ? "pill danger" : "pill present";
+    const pillText  = r.isExpired ? "EXPIRED" : "PRESENT";
+    const secondsAgo = r.lastSeen ? Math.floor(r.age / 1000) : null;
+
     return `
       <tr>
         <td><span class="${pillClass}">${pillText}</span></td>
         <td>${r.name} ${r.name==="Unknown" ? `<span class="pill unknown">UNENROLLED</span>` : ""}</td>
         <td><code>${r.uid}</code></td>
-        <td>${fmtTime(r.lastSeen)}</td>
+        <td>${r.lastSeen ? `${fmtTime(r.lastSeen)} <span class="muted">(${secondsAgo}s ago)</span>` : "-"}</td>
       </tr>
     `;
   }).join("");
